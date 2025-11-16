@@ -1,37 +1,70 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
+import { useAudioEngine } from './hooks/useAudioEngine'
+import { Waveform } from './components/Waveform'
+import { AudioPlayer } from './components/AudioPlayer'
+import { exportWAV, formatDuration } from './utils/audioUtils'
 
 function App() {
-  const [audioFile, setAudioFile] = useState<File | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const {
+    isInitialized,
+    isProcessing,
+    error,
+    currentPreset,
+    originalBuffer,
+    processedBuffer,
+    availablePresets,
+    initialize,
+    loadAudioFile,
+    applyPreset,
+    reset,
+  } = useAudioEngine()
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [selectedPresetId, setSelectedPresetId] = useState<string>('')
+
+  // Initialize engine on mount
+  useEffect(() => {
+    initialize()
+  }, [initialize])
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
-      setAudioFile(file)
+      setSelectedFile(file)
+      setSelectedPresetId('')
+      await loadAudioFile(file)
     }
   }
 
-  const handleProcessAudio = async () => {
-    if (!audioFile) return
-
-    setIsLoading(true)
-    try {
-      // TODO: Load WASM module and process audio
-      console.log('Processing audio:', audioFile.name)
-
-      // This is where you would:
-      // 1. Load the WASM module
-      // 2. Decode the audio file
-      // 3. Process it through the engine
-      // 4. Play/export the result
-
-      alert('Audio processing will be implemented when WASM module is integrated!')
-    } catch (error) {
-      console.error('Error processing audio:', error)
-    } finally {
-      setIsLoading(false)
+  const handleApplyPreset = async () => {
+    if (selectedPresetId) {
+      await applyPreset(selectedPresetId)
     }
+  }
+
+  const handleExportWAV = () => {
+    if (processedBuffer) {
+      const baseName = selectedFile?.name.replace(/\.[^/.]+$/, '') || 'audio'
+      const filename = `${baseName}_${currentPreset}.wav`
+      exportWAV(processedBuffer, filename)
+    }
+  }
+
+  const handleReset = () => {
+    reset()
+    setSelectedPresetId('')
+  }
+
+  if (!isInitialized) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-purple-400 mx-auto mb-4"></div>
+          <p className="text-xl">Loading Audio Engine...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -47,8 +80,15 @@ function App() {
           </p>
         </header>
 
+        {/* Error Display */}
+        {error && (
+          <div className="max-w-4xl mx-auto mb-8 bg-red-500/20 border border-red-500/50 rounded-lg p-4">
+            <p className="text-red-200">⚠️ {error}</p>
+          </div>
+        )}
+
         {/* Main Content */}
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           {/* Upload Section */}
           <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 mb-8 border border-white/20">
             <h2 className="text-2xl font-semibold mb-4">📁 Upload Audio</h2>
@@ -60,69 +100,122 @@ function App() {
                     accept="audio/*"
                     onChange={handleFileUpload}
                     className="hidden"
+                    disabled={isProcessing}
                   />
                   <div className="space-y-2">
                     <div className="text-4xl">🎼</div>
                     <p className="text-lg">
-                      {audioFile ? audioFile.name : 'Click to upload or drag & drop'}
+                      {selectedFile ? selectedFile.name : 'Click to upload or drag & drop'}
                     </p>
                     <p className="text-sm text-gray-400">
                       Supports MP3, WAV, FLAC, OGG
                     </p>
+                    {originalBuffer && (
+                      <div className="text-sm text-purple-300 mt-2">
+                        Duration: {formatDuration(originalBuffer.duration)} |
+                        Sample Rate: {originalBuffer.sampleRate}Hz |
+                        Channels: {originalBuffer.numberOfChannels}
+                      </div>
+                    )}
                   </div>
                 </div>
               </label>
             </div>
           </div>
 
+          {/* Waveform Visualization */}
+          {originalBuffer && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
+                <h3 className="text-lg font-semibold mb-3">🎼 Original</h3>
+                <Waveform audioBuffer={originalBuffer} color="#60a5fa" />
+              </div>
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
+                <h3 className="text-lg font-semibold mb-3">✨ Processed</h3>
+                <Waveform audioBuffer={processedBuffer} color="#a855f7" />
+              </div>
+            </div>
+          )}
+
+          {/* Audio Player */}
+          {originalBuffer && (
+            <div className="mb-8">
+              <AudioPlayer originalBuffer={originalBuffer} processedBuffer={processedBuffer} />
+            </div>
+          )}
+
           {/* Style Presets */}
-          {audioFile && (
+          {originalBuffer && (
             <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 mb-8 border border-white/20">
               <h2 className="text-2xl font-semibold mb-4">🎨 Choose Style</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {[
-                  { id: '8bit', name: '8-bit Chiptune', emoji: '🎮', desc: 'Classic NES/Famicom sound' },
-                  { id: 'touhou', name: 'Touhou-like', emoji: '🌸', desc: 'Bright electronic sound' },
-                  { id: 'fm_synthesis', name: 'FM/PC-98 Style', emoji: '🎹', desc: 'FM synthesis character' },
-                  { id: 'lofi', name: 'Lo-fi Hip Hop', emoji: '🎧', desc: 'Warm and nostalgic' },
-                ].map((preset) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                {availablePresets.map((preset) => (
                   <button
                     key={preset.id}
-                    className="bg-white/5 hover:bg-white/15 rounded-lg p-4 text-left transition-all border border-white/10 hover:border-white/30"
+                    onClick={() => setSelectedPresetId(preset.id)}
+                    disabled={isProcessing}
+                    className={`p-4 rounded-lg text-left transition-all border ${
+                      selectedPresetId === preset.id
+                        ? 'bg-purple-500/30 border-purple-400'
+                        : 'bg-white/5 hover:bg-white/15 border-white/10 hover:border-white/30'
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     <div className="flex items-start gap-3">
-                      <div className="text-3xl">{preset.emoji}</div>
-                      <div>
-                        <h3 className="font-semibold text-lg">{preset.name}</h3>
-                        <p className="text-sm text-gray-400">{preset.desc}</p>
+                      <div className="text-2xl">
+                        {preset.id === '8bit' && '🎮'}
+                        {preset.id === 'touhou' && '🌸'}
+                        {preset.id === 'fm_synthesis' && '🎹'}
+                        {preset.id === 'lofi' && '🎧'}
+                        {preset.id === 'clean' && '🔊'}
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-base mb-1">{preset.name}</h3>
+                        <p className="text-xs text-gray-400 line-clamp-2">{preset.description}</p>
+                        {currentPreset === preset.id && (
+                          <span className="inline-block mt-2 text-xs bg-purple-500/50 px-2 py-1 rounded">
+                            ✓ Applied
+                          </span>
+                        )}
                       </div>
                     </div>
                   </button>
                 ))}
               </div>
-            </div>
-          )}
 
-          {/* Action Buttons */}
-          {audioFile && (
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20">
-              <div className="flex gap-4 justify-center">
+              {/* Action Buttons */}
+              <div className="flex gap-4 justify-center flex-wrap">
                 <button
-                  onClick={handleProcessAudio}
-                  disabled={isLoading}
+                  onClick={handleApplyPreset}
+                  disabled={isProcessing || !selectedPresetId}
                   className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed px-8 py-3 rounded-lg font-semibold text-lg transition-all transform hover:scale-105"
                 >
-                  {isLoading ? '⏳ Processing...' : '✨ Apply Style'}
+                  {isProcessing ? '⏳ Processing...' : '✨ Apply Style'}
                 </button>
-                <button className="bg-white/10 hover:bg-white/20 px-8 py-3 rounded-lg font-semibold text-lg transition-all border border-white/20">
-                  ⬇️ Export WAV
-                </button>
+
+                {currentPreset && (
+                  <>
+                    <button
+                      onClick={handleReset}
+                      disabled={isProcessing}
+                      className="bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed px-8 py-3 rounded-lg font-semibold text-lg transition-all border border-white/20"
+                    >
+                      🔄 Reset
+                    </button>
+                    <button
+                      onClick={handleExportWAV}
+                      disabled={isProcessing || !processedBuffer}
+                      className="bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed px-8 py-3 rounded-lg font-semibold text-lg transition-all"
+                    >
+                      ⬇️ Export WAV
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           )}
 
           {/* Info Section */}
-          {!audioFile && (
+          {!originalBuffer && (
             <div className="bg-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/10">
               <h2 className="text-2xl font-semibold mb-4">✨ Features</h2>
               <ul className="space-y-3 text-gray-300">
@@ -140,7 +233,11 @@ function App() {
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-green-400">✓</span>
-                  <span><strong>Customizable:</strong> Create and save your own filter presets</span>
+                  <span><strong>A/B Comparison:</strong> Compare original and processed audio in real-time</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-green-400">✓</span>
+                  <span><strong>Export:</strong> Download your transformed audio as high-quality WAV</span>
                 </li>
               </ul>
             </div>
