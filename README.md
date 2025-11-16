@@ -2,6 +2,8 @@
 
 A pure frontend, WebAssembly-based audio processing workstation that transforms music styles in your browser - no server needed!
 
+**Status:** ✅ Phase 1 MVP Complete - Fully functional!
+
 ## ✨ Features
 
 - **Pure Frontend**: All audio processing happens in your browser
@@ -58,6 +60,12 @@ npm run dev
 ```
 
 Open http://localhost:5173 in your browser.
+
+## 📖 Documentation
+
+- **[USAGE.md](USAGE.md)** - Complete user guide with tips and tricks
+- **[DEVELOPMENT.md](DEVELOPMENT.md)** - Developer documentation and architecture
+- **[Audio Engine Docs](audio-engine/src/)** - Rust/WASM source code with inline documentation
 
 ## 🎨 Usage
 
@@ -120,14 +128,14 @@ To integrate your AI model, implement the `AIStyleModel` trait in `ai/interface.
 
 ## 🎯 Roadmap
 
-### Phase 1: MVP (Current)
-- [x] Basic DSP algorithms
-- [x] 5 built-in style presets
-- [x] WASM compilation
-- [ ] Basic UI with file upload
-- [ ] Waveform visualization
-- [ ] Audio playback & A/B comparison
-- [ ] WAV export
+### Phase 1: MVP ✅ COMPLETED
+- [x] Basic DSP algorithms (EQ, bitcrush, reverb, compression, stereo)
+- [x] 5 built-in style presets (8-bit, Touhou, FM, Lo-fi, Clean)
+- [x] WASM compilation and integration
+- [x] Full UI with file upload
+- [x] Waveform visualization (Canvas-based)
+- [x] Audio playback & A/B comparison
+- [x] WAV export (16-bit PCM)
 
 ### Phase 2: Enhanced Features
 - [ ] Real-time parameter adjustment
