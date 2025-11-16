@@ -1,0 +1,36 @@
+# Rust
+/audio-engine/target/
+/audio-engine/Cargo.lock
+**/*.rs.bk
+*.pdb
+
+# WASM build output (keep pkg for reference)
+# /audio-engine/pkg/
+
+# Node
+/web/node_modules/
+/web/dist/
+/web/.vite/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment
+.env
+.env.local
+.env.production.local
+.env.development.local
