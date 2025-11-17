@@ -1,11 +1,14 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useCallback } from 'react'
 import './App.css'
 import { useAudioEngine } from './hooks/useAudioEngine'
 import { Waveform } from './components/Waveform'
 import { AudioPlayer } from './components/AudioPlayer'
 import { ParameterControls } from './components/ParameterControls'
-import { exportWAV, formatDuration, exportPresetJSON, importPresetJSON } from './utils/audioUtils'
+import { BatchProcessor, type BatchFile } from './components/BatchProcessor'
+import { exportWAV, formatDuration, exportPresetJSON, importPresetJSON, decodeAudioFile } from './utils/audioUtils'
 import { extractParametersFromPreset, updatePresetParameters } from './utils/presetUtils'
+
+type ProcessingMode = 'single' | 'batch'
 
 function App() {
   const {
@@ -26,6 +29,9 @@ function App() {
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [selectedPresetId, setSelectedPresetId] = useState<string>('')
+  const [processingMode, setProcessingMode] = useState<ProcessingMode>('single')
+  const [batchFiles, setBatchFiles] = useState<BatchFile[]>([])
+  const [isBatchProcessing, setIsBatchProcessing] = useState(false)
 
   // Extract parameters from current preset
   const currentParameters = useMemo(() => {
@@ -99,6 +105,96 @@ function App() {
     event.target.value = ''
   }
 
+  // Batch processing functions
+  const handleBatchFilesAdded = useCallback((files: File[]) => {
+    const newBatchFiles: BatchFile[] = files.map(file => ({
+      id: `${Date.now()}-${Math.random()}`,
+      file,
+      status: 'pending',
+      progress: 0,
+    }))
+    setBatchFiles(prev => [...prev, ...newBatchFiles])
+  }, [])
+
+  const handleProcessBatch = useCallback(async (presetId: string) => {
+    setIsBatchProcessing(true)
+
+    const pendingFiles = batchFiles.filter(f => f.status === 'pending')
+
+    for (const batchFile of pendingFiles) {
+      try {
+        // Update status to processing
+        setBatchFiles(prev =>
+          prev.map(f => f.id === batchFile.id ? { ...f, status: 'processing', progress: 0 } : f)
+        )
+
+        // Decode audio
+        const audioBuffer = await decodeAudioFile(batchFile.file)
+
+        setBatchFiles(prev =>
+          prev.map(f => f.id === batchFile.id ? { ...f, progress: 30 } : f)
+        )
+
+        // Load and process
+        await loadAudioFile(batchFile.file)
+
+        setBatchFiles(prev =>
+          prev.map(f => f.id === batchFile.id ? { ...f, progress: 60 } : f)
+        )
+
+        await applyPreset(presetId)
+
+        setBatchFiles(prev =>
+          prev.map(f => f.id === batchFile.id ? { ...f, progress: 90 } : f)
+        )
+
+        // Store processed buffer
+        const processed = processedBuffer
+
+        setBatchFiles(prev =>
+          prev.map(f => f.id === batchFile.id ? {
+            ...f,
+            status: 'completed',
+            progress: 100,
+            originalBuffer: audioBuffer,
+            processedBuffer: processed || undefined
+          } : f)
+        )
+      } catch (error) {
+        setBatchFiles(prev =>
+          prev.map(f => f.id === batchFile.id ? {
+            ...f,
+            status: 'error',
+            progress: 0,
+            error: `Processing failed: ${error}`
+          } : f)
+        )
+      }
+    }
+
+    setIsBatchProcessing(false)
+  }, [batchFiles, loadAudioFile, applyPreset, processedBuffer])
+
+  const handleRemoveBatchFile = useCallback((fileId: string) => {
+    setBatchFiles(prev => prev.filter(f => f.id !== fileId))
+  }, [])
+
+  const handleClearCompleted = useCallback(() => {
+    setBatchFiles(prev => prev.filter(f => f.status !== 'completed'))
+  }, [])
+
+  const handleExportAllBatch = useCallback(() => {
+    const completedFiles = batchFiles.filter(f => f.status === 'completed' && f.processedBuffer)
+
+    completedFiles.forEach(batchFile => {
+      if (batchFile.processedBuffer) {
+        const baseName = batchFile.file.name.replace(/\.[^/.]+$/, '')
+        const filename = `${baseName}_processed.wav`
+        exportWAV(batchFile.processedBuffer, filename)
+      }
+    })
+  }, [batchFiles])
+
   if (!isInitialized) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white flex items-center justify-center">
@@ -130,10 +226,53 @@ function App() {
           </div>
         )}
 
+        {/* Mode Selector */}
+        <div className="max-w-6xl mx-auto mb-8">
+          <div className="flex justify-center gap-4">
+            <button
+              onClick={() => setProcessingMode('single')}
+              className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+                processingMode === 'single'
+                  ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
+                  : 'bg-white/10 text-gray-300 hover:bg-white/20'
+              }`}
+            >
+              🎵 Single File Mode
+            </button>
+            <button
+              onClick={() => setProcessingMode('batch')}
+              className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+                processingMode === 'batch'
+                  ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
+                  : 'bg-white/10 text-gray-300 hover:bg-white/20'
+              }`}
+            >
+              📦 Batch Processing Mode
+            </button>
+          </div>
+        </div>
+
         {/* Main Content */}
         <div className="max-w-6xl mx-auto">
-          {/* Upload Section */}
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 mb-8 border border-white/20">
+          {/* Batch Processing Mode */}
+          {processingMode === 'batch' && (
+            <BatchProcessor
+              onFilesAdded={handleBatchFilesAdded}
+              batchFiles={batchFiles}
+              onProcessBatch={handleProcessBatch}
+              onRemoveFile={handleRemoveBatchFile}
+              onClearCompleted={handleClearCompleted}
+              onExportAll={handleExportAllBatch}
+              availablePresets={availablePresets}
+              isProcessing={isBatchProcessing}
+            />
+          )}
+
+          {/* Single File Mode */}
+          {processingMode === 'single' && (
+            <>
+              {/* Upload Section */}
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 mb-8 border border-white/20">
             <h2 className="text-2xl font-semibold mb-4">📁 Upload Audio</h2>
             <div className="space-y-4">
               <label className="block">
@@ -298,33 +437,39 @@ function App() {
             </div>
           )}
 
-          {/* Info Section */}
-          {!originalBuffer && (
-            <div className="bg-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/10">
-              <h2 className="text-2xl font-semibold mb-4">✨ Features</h2>
-              <ul className="space-y-3 text-gray-300">
-                <li className="flex items-start gap-3">
-                  <span className="text-green-400">✓</span>
-                  <span><strong>100% Privacy:</strong> All processing happens in your browser - no uploads!</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-green-400">✓</span>
-                  <span><strong>Multiple Styles:</strong> 8-bit, Touhou, FM synthesis, Lo-fi, Vaporwave, Synthwave, 80s Pop and more</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-green-400">✓</span>
-                  <span><strong>High Quality:</strong> Professional-grade DSP algorithms powered by Rust & WebAssembly</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-green-400">✓</span>
-                  <span><strong>A/B Comparison:</strong> Compare original and processed audio in real-time</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-green-400">✓</span>
-                  <span><strong>Export:</strong> Download your transformed audio as high-quality WAV</span>
-                </li>
-              </ul>
-            </div>
+              {/* Info Section */}
+              {!originalBuffer && (
+                <div className="bg-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/10">
+                  <h2 className="text-2xl font-semibold mb-4">✨ Features</h2>
+                  <ul className="space-y-3 text-gray-300">
+                    <li className="flex items-start gap-3">
+                      <span className="text-green-400">✓</span>
+                      <span><strong>100% Privacy:</strong> All processing happens in your browser - no uploads!</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-green-400">✓</span>
+                      <span><strong>Multiple Styles:</strong> 8-bit, Touhou, FM synthesis, Lo-fi, Vaporwave, Synthwave, 80s Pop and more</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-green-400">✓</span>
+                      <span><strong>High Quality:</strong> Professional-grade DSP algorithms powered by Rust & WebAssembly</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-green-400">✓</span>
+                      <span><strong>A/B Comparison:</strong> Compare original and processed audio in real-time</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-green-400">✓</span>
+                      <span><strong>Export:</strong> Download your transformed audio as high-quality WAV</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-green-400">✓</span>
+                      <span><strong>Batch Processing:</strong> Process multiple files at once with one click</span>
+                    </li>
+                  </ul>
+                </div>
+              )}
+            </>
           )}
         </div>
 

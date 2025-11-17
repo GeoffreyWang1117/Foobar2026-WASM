@@ -22,6 +22,25 @@
 
 ## Using the Application
 
+### Choose Your Processing Mode
+
+The app offers two modes:
+
+1. **🎵 Single File Mode**: Process one audio file at a time with full control
+   - Upload, preview, adjust parameters, and export single files
+   - Full waveform visualization and A/B comparison
+   - Real-time parameter tuning
+
+2. **📦 Batch Processing Mode**: Process multiple files at once
+   - Upload multiple audio files simultaneously
+   - Apply the same preset to all files in one go
+   - Queue management with progress tracking
+   - Batch export all processed files
+
+---
+
+## Single File Mode
+
 ### Step 1: Upload Your Audio File
 
 1. Click the upload area or drag and drop an audio file
@@ -143,6 +162,64 @@ Switch between them in real-time to compare!
 2. File downloads automatically as `filename_stylename.wav`
 3. High-quality 16-bit PCM WAV format
 4. Ready to use in any audio software
+
+---
+
+## Batch Processing Mode
+
+### Step 1: Add Multiple Files
+
+1. Click the **"📦 Batch Processing Mode"** button at the top
+2. Click the upload area or drag & drop multiple audio files
+3. All files will appear in the queue with "⏳ Pending" status
+4. You can add more files at any time
+
+### Step 2: Select a Preset
+
+1. Choose a preset from the grid (same 8 presets available)
+2. The selected preset will be applied to ALL files in the queue
+3. The preset will be highlighted in purple when selected
+
+### Step 3: Process the Batch
+
+1. Click **"✨ Process Batch (N files)"** button
+2. Watch the progress as each file is processed:
+   - **⏳ Pending**: Waiting in queue
+   - **⚙️ Processing**: Currently being processed with progress bar
+   - **✅ Completed**: Successfully processed
+   - **❌ Error**: Failed (with error message)
+3. Processing happens sequentially, one file at a time
+4. You can monitor the statistics at the top (Pending/Processing/Completed/Errors)
+
+### Step 4: Export All Processed Files
+
+1. After processing completes, click **"⬇️ Export All (N)"**
+2. All completed files will download automatically
+3. Files are named: `original_filename_processed.wav`
+4. High-quality 16-bit PCM WAV format
+
+### Step 5: Queue Management
+
+**Remove Individual Files:**
+- Click the 🗑️ button next to any file to remove it from the queue
+
+**Clear Completed Files:**
+- Click **"🗑️ Clear Completed"** to remove all successfully processed files
+- This helps manage the queue when processing large batches
+
+**Add More Files:**
+- You can add more files while processing or after completion
+- New files will be added with "Pending" status
+
+### Tips for Batch Processing
+
+1. **Large Batches**: For 10+ files, processing may take a few minutes
+2. **File Sizes**: Keep individual files under 10MB for best performance
+3. **Same Style**: All files in a batch get the same preset - plan accordingly
+4. **Error Handling**: If a file fails, others will continue processing
+5. **Memory**: Very large batches (50+ files) may consume significant memory
+
+---
 
 ## Tips & Tricks
 
