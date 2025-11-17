@@ -21,6 +21,7 @@ A pure frontend, WebAssembly-based audio processing workstation that transforms 
 - **Custom Preset Editor**: Adjust effect parameters to create your own unique sounds
 - **Preset Import/Export**: Share presets as JSON files
 - **Batch Processing**: Process multiple audio files at once with queue management
+- **Web Worker Processing**: Non-blocking audio processing for smooth UI experience
 - **AI-Ready**: Extensible AI interface for intelligent style suggestions
 - **Custom Styles**: Create and save your own filter presets
 - **High-Performance**: Rust + WASM powered audio engine
@@ -156,8 +157,9 @@ To integrate your AI model, implement the `AIStyleModel` trait in `ai/interface.
 
 ### Phase 3: Advanced Features (In Progress)
 - [x] Batch processing with queue management
-- [ ] Region-specific processing
-- [ ] Real-time preview optimization (Web Worker)
+- [x] Web Worker for non-blocking processing
+- [x] Performance mode toggle (Worker / Main Thread)
+- [ ] Region-specific processing (audio selection)
 - [ ] AI-powered style suggestions
 - [ ] PWA support (offline mode)
 

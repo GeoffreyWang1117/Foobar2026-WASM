@@ -22,6 +22,34 @@
 
 ## Using the Application
 
+### Performance Settings (NEW in Phase 3!)
+
+Click the **⚙️ Settings** button in the top-right corner to access performance options:
+
+**Processing Engine Modes:**
+
+1. **⚡ Web Worker Mode (Default - Recommended)**:
+   - Processes audio in a separate thread
+   - UI remains responsive during processing
+   - No freezing or lag when adjusting parameters
+   - Best for: Large files, real-time parameter tuning
+   - Slightly higher memory usage
+
+2. **🔧 Main Thread Mode**:
+   - Processes audio on the main thread
+   - Maximum compatibility with all browsers
+   - UI may freeze briefly during processing
+   - Best for: Smaller files, maximum compatibility
+   - Lower memory usage
+
+**When to use each mode:**
+- **Use Web Worker** for files > 3 minutes or when adjusting many parameters
+- **Use Main Thread** if experiencing issues or on older devices
+
+⚠️ **Note**: Changing the engine mode requires reloading your audio file.
+
+---
+
 ### Choose Your Processing Mode
 
 The app offers two modes:

@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import './App.css'
 import { useAudioEngine } from './hooks/useAudioEngine'
+import { useAudioWorker } from './hooks/useAudioWorker'
 import { Waveform } from './components/Waveform'
 import { AudioPlayer } from './components/AudioPlayer'
 import { ParameterControls } from './components/ParameterControls'
@@ -9,8 +10,17 @@ import { exportWAV, formatDuration, exportPresetJSON, importPresetJSON, decodeAu
 import { extractParametersFromPreset, updatePresetParameters } from './utils/presetUtils'
 
 type ProcessingMode = 'single' | 'batch'
+type EngineMode = 'main' | 'worker'
 
 function App() {
+  const [engineMode, setEngineMode] = useState<EngineMode>('worker')
+
+  // Use appropriate engine based on mode
+  const mainEngine = useAudioEngine()
+  const workerEngine = useAudioWorker()
+
+  const engine = engineMode === 'worker' ? workerEngine : mainEngine
+
   const {
     isInitialized,
     isProcessing,
@@ -25,13 +35,14 @@ function App() {
     applyPreset,
     applyCustomPreset,
     reset,
-  } = useAudioEngine()
+  } = engine
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [selectedPresetId, setSelectedPresetId] = useState<string>('')
   const [processingMode, setProcessingMode] = useState<ProcessingMode>('single')
   const [batchFiles, setBatchFiles] = useState<BatchFile[]>([])
   const [isBatchProcessing, setIsBatchProcessing] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
 
   // Extract parameters from current preset
   const currentParameters = useMemo(() => {
@@ -210,14 +221,71 @@ function App() {
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <header className="text-center mb-12">
+        <header className="text-center mb-12 relative">
+          <button
+            onClick={() => setShowSettings(!showSettings)}
+            className="absolute top-0 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+            title="Settings"
+          >
+            ⚙️
+          </button>
           <h1 className="text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-pink-400 to-purple-400">
             🎵 Music Style Filter
           </h1>
           <p className="text-lg text-gray-300">
             Transform your music with retro and modern audio styles - all in your browser!
           </p>
+          {engineMode === 'worker' && (
+            <p className="text-sm text-green-400 mt-2">
+              ⚡ Performance Mode: Web Worker Enabled
+            </p>
+          )}
         </header>
+
+        {/* Settings Panel */}
+        {showSettings && (
+          <div className="max-w-4xl mx-auto mb-8 bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
+            <h3 className="text-xl font-semibold mb-4">⚙️ Settings</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold mb-2">
+                  Processing Engine:
+                </label>
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => setEngineMode('worker')}
+                    className={`flex-1 px-4 py-3 rounded-lg font-semibold transition-all ${
+                      engineMode === 'worker'
+                        ? 'bg-gradient-to-r from-green-500 to-blue-600 text-white'
+                        : 'bg-white/5 text-gray-300 hover:bg-white/10'
+                    }`}
+                  >
+                    <div className="text-lg mb-1">⚡ Web Worker</div>
+                    <div className="text-xs">
+                      Non-blocking UI, better performance
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => setEngineMode('main')}
+                    className={`flex-1 px-4 py-3 rounded-lg font-semibold transition-all ${
+                      engineMode === 'main'
+                        ? 'bg-gradient-to-r from-green-500 to-blue-600 text-white'
+                        : 'bg-white/5 text-gray-300 hover:bg-white/10'
+                    }`}
+                  >
+                    <div className="text-lg mb-1">🔧 Main Thread</div>
+                    <div className="text-xs">
+                      Direct processing, maximum compatibility
+                    </div>
+                  </button>
+                </div>
+                <p className="text-xs text-gray-400 mt-2">
+                  ⚠️ Changing engine mode requires reloading your audio file
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Error Display */}
         {error && (
