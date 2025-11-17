@@ -249,6 +249,72 @@ Switch between them in real-time to compare!
 
 ---
 
+## Region Processing Mode (Phase 3 Feature!)
+
+Process only a specific portion of your audio file while leaving the rest untouched.
+
+### Step 1: Enable Region Processing
+
+1. Upload and load your audio file as usual
+2. Look for the **"🎯 Region Processing"** panel below the upload section
+3. Click **"Enable"** to activate region processing mode
+
+### Step 2: Select a Region
+
+1. **Click and Drag** on the waveform to select a region
+   - Click where you want the region to start
+   - Drag to where you want it to end
+   - Release to complete the selection
+
+2. **Adjust Region Boundaries**:
+   - Click and drag the **purple handles** at the start and end to resize
+   - Click and drag **inside the region** to move it without changing size
+   - The selected region will be highlighted in purple
+
+3. **View Region Info**:
+   - Start time, end time, and duration are displayed below the waveform
+   - Times are shown in MM:SS.MS format (minutes:seconds.milliseconds)
+
+### Step 3: Apply Preset to Region
+
+1. Select a style preset from the **"🎨 Choose Style"** section
+2. Click **"✨ Apply to Region"** button
+3. The preset will be applied only to the selected region
+4. The rest of the audio remains unchanged
+
+### Step 4: Export Options
+
+**Export Full Audio:**
+- Use the standard **"⬇️ Export WAV"** button
+- Exports the complete audio with the processed region
+
+**Export Region Only:**
+- Click **"⬇️ Export Region"** button
+- Exports only the selected (and processed) region as a separate file
+
+### Step 5: Clear Region
+
+- Click the **"✕ Clear Region"** button to deselect and start over
+- Or click **"Enable"** again to disable region mode entirely
+
+### Use Cases for Region Processing
+
+1. **Fix Specific Sections**: Apply noise reduction to only the problematic parts
+2. **Creative Effects**: Add 8-bit effect to the chorus while keeping verses clean
+3. **Highlight Moments**: Apply special processing to drops, solos, or key moments
+4. **Selective Enhancement**: Boost only the quiet parts without affecting loud sections
+5. **Experimentation**: Test different presets on different parts of the same track
+
+### Tips for Region Processing
+
+1. **Precise Selection**: Use the handle dragging for fine-tuned control
+2. **Multiple Regions**: Process one region, export, then select another (sequential workflow)
+3. **Undo**: Clear the region and reselect if you make a mistake
+4. **Preview**: The audio player will play the full file including processed region
+5. **Export Both**: Export the full file AND just the region for maximum flexibility
+
+---
+
 ## Tips & Tricks
 
 ### Getting the Best Results

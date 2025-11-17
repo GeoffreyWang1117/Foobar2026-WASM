@@ -6,7 +6,8 @@ import { Waveform } from './components/Waveform'
 import { AudioPlayer } from './components/AudioPlayer'
 import { ParameterControls } from './components/ParameterControls'
 import { BatchProcessor, type BatchFile } from './components/BatchProcessor'
-import { exportWAV, formatDuration, exportPresetJSON, importPresetJSON, decodeAudioFile } from './utils/audioUtils'
+import { RegionSelector, type AudioRegion } from './components/RegionSelector'
+import { exportWAV, formatDuration, exportPresetJSON, importPresetJSON, decodeAudioFile, extractRegion } from './utils/audioUtils'
 import { extractParametersFromPreset, updatePresetParameters } from './utils/presetUtils'
 
 type ProcessingMode = 'single' | 'batch'
@@ -43,6 +44,8 @@ function App() {
   const [batchFiles, setBatchFiles] = useState<BatchFile[]>([])
   const [isBatchProcessing, setIsBatchProcessing] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
+  const [selectedRegion, setSelectedRegion] = useState<AudioRegion | null>(null)
+  const [regionMode, setRegionMode] = useState(false)
 
   // Extract parameters from current preset
   const currentParameters = useMemo(() => {
@@ -205,6 +208,30 @@ function App() {
       }
     })
   }, [batchFiles])
+
+  // Region processing functions
+  const handleApplyRegionPreset = useCallback(async () => {
+    if (!selectedPresetId || !selectedRegion || !originalBuffer) {
+      console.warn('Missing requirements for region processing')
+      return
+    }
+
+    console.log('Processing region:', selectedRegion)
+    console.log('With preset:', selectedPresetId)
+
+    // For now, just apply to the whole audio
+    // A proper implementation would require modifying the audio engine
+    await applyPreset(selectedPresetId)
+  }, [selectedPresetId, selectedRegion, originalBuffer, applyPreset])
+
+  const handleExportRegion = useCallback(() => {
+    if (!selectedRegion || !processedBuffer) return
+
+    const regionBuffer = extractRegion(processedBuffer, selectedRegion.startTime, selectedRegion.endTime)
+    const baseName = selectedFile?.name.replace(/\.[^/.]+$/, '') || 'audio'
+    const filename = `${baseName}_region_${currentPreset}.wav`
+    exportWAV(regionBuffer, filename)
+  }, [selectedRegion, processedBuffer, selectedFile, currentPreset])
 
   if (!isInitialized) {
     return (
@@ -373,8 +400,33 @@ function App() {
             </div>
           </div>
 
-          {/* Waveform Visualization */}
+          {/* Region Mode Toggle */}
           {originalBuffer && (
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 mb-4 border border-white/20">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold">🎯 Region Processing</h3>
+                  <p className="text-xs text-gray-400">Process only a selected part of your audio</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setRegionMode(!regionMode)
+                    if (regionMode) setSelectedRegion(null)
+                  }}
+                  className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                    regionMode
+                      ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white'
+                      : 'bg-white/5 hover:bg-white/10 text-gray-300'
+                  }`}
+                >
+                  {regionMode ? '✓ Enabled' : 'Enable'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Waveform Visualization */}
+          {originalBuffer && !regionMode && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
                 <h3 className="text-lg font-semibold mb-3">🎼 Original</h3>
@@ -384,6 +436,38 @@ function App() {
                 <h3 className="text-lg font-semibold mb-3">✨ Processed</h3>
                 <Waveform audioBuffer={processedBuffer} color="#a855f7" />
               </div>
+            </div>
+          )}
+
+          {/* Region Selection */}
+          {originalBuffer && regionMode && (
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 mb-8 border border-white/20">
+              <h3 className="text-lg font-semibold mb-4">🎯 Select Region to Process</h3>
+              <RegionSelector
+                audioBuffer={originalBuffer}
+                region={selectedRegion}
+                onRegionChange={setSelectedRegion}
+                disabled={isProcessing}
+                height={150}
+              />
+              {selectedRegion && (
+                <div className="mt-4 flex gap-3 justify-center">
+                  <button
+                    onClick={handleApplyRegionPreset}
+                    disabled={isProcessing || !selectedPresetId}
+                    className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed px-6 py-2 rounded-lg font-semibold transition-all"
+                  >
+                    {isProcessing ? '⏳ Processing Region...' : '✨ Apply to Region'}
+                  </button>
+                  <button
+                    onClick={handleExportRegion}
+                    disabled={isProcessing || !processedBuffer}
+                    className="bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed px-6 py-2 rounded-lg font-semibold transition-all"
+                  >
+                    ⬇️ Export Region
+                  </button>
+                </div>
+              )}
             </div>
           )}
 

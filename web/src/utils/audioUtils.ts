@@ -191,3 +191,81 @@ export async function importPresetJSON(file: File): Promise<any> {
     throw new Error(`Failed to import preset: ${error}`)
   }
 }
+
+/**
+ * Extract a region from an AudioBuffer
+ */
+export function extractRegion(
+  audioBuffer: AudioBuffer,
+  startTime: number,
+  endTime: number
+): AudioBuffer {
+  const sampleRate = audioBuffer.sampleRate
+  const numberOfChannels = audioBuffer.numberOfChannels
+
+  // Calculate sample indices
+  const startSample = Math.floor(startTime * sampleRate)
+  const endSample = Math.floor(endTime * sampleRate)
+  const length = endSample - startSample
+
+  // Create new buffer for the region
+  const audioContext = new AudioContext()
+  const regionBuffer = audioContext.createBuffer(numberOfChannels, length, sampleRate)
+
+  // Copy data for each channel
+  for (let channel = 0; channel < numberOfChannels; channel++) {
+    const sourceData = audioBuffer.getChannelData(channel)
+    const destData = regionBuffer.getChannelData(channel)
+
+    for (let i = 0; i < length; i++) {
+      destData[i] = sourceData[startSample + i]
+    }
+  }
+
+  return regionBuffer
+}
+
+/**
+ * Replace a region in an AudioBuffer with processed audio
+ */
+export function replaceRegion(
+  originalBuffer: AudioBuffer,
+  processedRegion: AudioBuffer,
+  startTime: number
+): AudioBuffer {
+  const sampleRate = originalBuffer.sampleRate
+  const numberOfChannels = originalBuffer.numberOfChannels
+
+  // Create new buffer with same length as original
+  const audioContext = new AudioContext()
+  const resultBuffer = audioContext.createBuffer(
+    numberOfChannels,
+    originalBuffer.length,
+    sampleRate
+  )
+
+  const startSample = Math.floor(startTime * sampleRate)
+  const regionLength = processedRegion.length
+
+  // Copy and replace data for each channel
+  for (let channel = 0; channel < numberOfChannels; channel++) {
+    const originalData = originalBuffer.getChannelData(channel)
+    const processedData = processedRegion.getChannelData(channel)
+    const resultData = resultBuffer.getChannelData(channel)
+
+    // Copy original data
+    for (let i = 0; i < originalBuffer.length; i++) {
+      resultData[i] = originalData[i]
+    }
+
+    // Replace region
+    for (let i = 0; i < regionLength; i++) {
+      const targetIndex = startSample + i
+      if (targetIndex < resultBuffer.length) {
+        resultData[targetIndex] = processedData[i]
+      }
+    }
+  }
+
+  return resultBuffer
+}
