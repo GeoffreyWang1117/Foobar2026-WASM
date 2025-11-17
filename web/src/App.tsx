@@ -166,6 +166,9 @@ function App() {
                         {preset.id === 'touhou' && '🌸'}
                         {preset.id === 'fm_synthesis' && '🎹'}
                         {preset.id === 'lofi' && '🎧'}
+                        {preset.id === 'vaporwave' && '🌊'}
+                        {preset.id === 'synthwave' && '🌃'}
+                        {preset.id === 'pop80s' && '💿'}
                         {preset.id === 'clean' && '🔊'}
                       </div>
                       <div className="flex-1">
@@ -225,7 +228,7 @@ function App() {
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-green-400">✓</span>
-                  <span><strong>Multiple Styles:</strong> 8-bit, Touhou, FM synthesis, Lo-fi and more</span>
+                  <span><strong>Multiple Styles:</strong> 8-bit, Touhou, FM synthesis, Lo-fi, Vaporwave, Synthwave, 80s Pop and more</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-green-400">✓</span>

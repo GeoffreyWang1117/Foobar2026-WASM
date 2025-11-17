@@ -15,6 +15,7 @@ export interface AudioEngineState {
   isProcessing: boolean
   error: string | null
   currentPreset: string | null
+  currentPresetData: any | null
   originalBuffer: AudioBuffer | null
   processedBuffer: AudioBuffer | null
   availablePresets: any[]
@@ -26,6 +27,7 @@ export function useAudioEngine() {
     isProcessing: false,
     error: null,
     currentPreset: null,
+    currentPresetData: null,
     originalBuffer: null,
     processedBuffer: null,
     availablePresets: [],
@@ -122,6 +124,10 @@ export function useAudioEngine() {
       // Apply preset
       engine.applyPreset(presetId)
 
+      // Get preset data for UI
+      const presetData = PresetLib.getPresetById(presetId)
+      const preset = presetData ? JSON.parse(presetData) : null
+
       // Get processed audio
       const processedData = engine.getProcessedAudio()
 
@@ -136,6 +142,7 @@ export function useAudioEngine() {
         ...prev,
         processedBuffer,
         currentPreset: presetId,
+        currentPresetData: preset,
         isProcessing: false,
       }))
 
@@ -151,6 +158,56 @@ export function useAudioEngine() {
   }, [state.originalBuffer])
 
   /**
+   * Apply a custom preset from JSON
+   */
+  const applyCustomPreset = useCallback(async (presetJson: string) => {
+    if (!engineRef.current || !state.originalBuffer) {
+      setState(prev => ({
+        ...prev,
+        error: 'No audio loaded',
+      }))
+      return
+    }
+
+    setState(prev => ({ ...prev, isProcessing: true, error: null }))
+
+    try {
+      const engine = engineRef.current
+      const presetData = JSON.parse(presetJson)
+
+      // Apply custom preset
+      engine.applyCustomPreset(presetJson)
+
+      // Get processed audio
+      const processedData = engine.getProcessedAudio()
+
+      // Convert back to AudioBuffer
+      const processedBuffer = float32ToAudioBuffer(
+        processedData,
+        state.originalBuffer.numberOfChannels,
+        state.originalBuffer.sampleRate
+      )
+
+      setState(prev => ({
+        ...prev,
+        processedBuffer,
+        currentPreset: presetData.id || 'custom',
+        currentPresetData: presetData,
+        isProcessing: false,
+      }))
+
+      console.log(`Applied custom preset`)
+    } catch (error) {
+      setState(prev => ({
+        ...prev,
+        error: `Failed to apply custom preset: ${error}`,
+        isProcessing: false,
+      }))
+      console.error('Custom preset error:', error)
+    }
+  }, [state.originalBuffer])
+
+  /**
    * Reset to original audio
    */
   const reset = useCallback(() => {
@@ -162,6 +219,7 @@ export function useAudioEngine() {
       ...prev,
       processedBuffer: null,
       currentPreset: null,
+      currentPresetData: null,
     }))
   }, [])
 
@@ -187,6 +245,7 @@ export function useAudioEngine() {
     initialize,
     loadAudioFile,
     applyPreset,
+    applyCustomPreset,
     reset,
     extractFeatures,
   }

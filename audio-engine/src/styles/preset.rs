@@ -101,6 +101,9 @@ impl PresetLibrary {
             Self::preset_touhou(),
             Self::preset_fm_synthesis(),
             Self::preset_lofi(),
+            Self::preset_vaporwave(),
+            Self::preset_synthwave(),
+            Self::preset_pop80s(),
             Self::preset_clean(),
         ]
     }
@@ -311,6 +314,162 @@ impl PresetLibrary {
             ai_enhanced: false,
             category: "Modern".to_string(),
             tags: vec!["lofi".to_string(), "chill".to_string(), "hip-hop".to_string()],
+            author: Some("Audio Engine Team".to_string()),
+            version: "1.0.0".to_string(),
+        }
+    }
+
+    /// Vaporwave aesthetic style
+    pub fn preset_vaporwave() -> StylePreset {
+        StylePreset {
+            id: "vaporwave".to_string(),
+            name: "Vaporwave Aesthetic".to_string(),
+            description: "Slowed, reverb-heavy 80s aesthetic with nostalgic vibes".to_string(),
+            effects: vec![
+                // Enhance bass and highs for that aesthetic feel
+                EffectConfig::EQ {
+                    params: EQParams {
+                        low_gain: 4.0,
+                        mid_gain: -1.0,
+                        high_gain: 3.0,
+                        low_freq: 150.0,
+                        high_freq: 8000.0,
+                    },
+                },
+                // Wide stereo for spacious feel
+                EffectConfig::Stereo {
+                    params: StereoParams {
+                        width: 1.6,
+                        pan: 0.0,
+                    },
+                },
+                // Large reverb for dreamy atmosphere
+                EffectConfig::Reverb {
+                    params: ReverbParams {
+                        room_size: 0.9,
+                        damping: 0.3,
+                        mix: 0.5,
+                        width: 1.0,
+                    },
+                },
+                // Light compression
+                EffectConfig::Compressor {
+                    params: CompressorParams {
+                        threshold: -18.0,
+                        ratio: 2.0,
+                        attack_ms: 20.0,
+                        release_ms: 200.0,
+                        makeup_gain: 2.0,
+                    },
+                },
+            ],
+            ai_enhanced: false,
+            category: "Modern".to_string(),
+            tags: vec!["vaporwave".to_string(), "aesthetic".to_string(), "80s".to_string()],
+            author: Some("Audio Engine Team".to_string()),
+            version: "1.0.0".to_string(),
+        }
+    }
+
+    /// Synthwave/retrowave style
+    pub fn preset_synthwave() -> StylePreset {
+        StylePreset {
+            id: "synthwave".to_string(),
+            name: "Synthwave".to_string(),
+            description: "Retro 80s synthwave sound - punchy and energetic with enhanced bass".to_string(),
+            effects: vec![
+                // Boost bass and presence
+                EffectConfig::EQ {
+                    params: EQParams {
+                        low_gain: 5.0,
+                        mid_gain: 2.0,
+                        high_gain: 4.0,
+                        low_freq: 120.0,
+                        high_freq: 6000.0,
+                    },
+                },
+                // Moderate stereo width
+                EffectConfig::Stereo {
+                    params: StereoParams {
+                        width: 1.2,
+                        pan: 0.0,
+                    },
+                },
+                // Medium reverb for depth
+                EffectConfig::Reverb {
+                    params: ReverbParams {
+                        room_size: 0.5,
+                        damping: 0.4,
+                        mix: 0.3,
+                        width: 0.7,
+                    },
+                },
+                // Punchy compression
+                EffectConfig::Compressor {
+                    params: CompressorParams {
+                        threshold: -15.0,
+                        ratio: 4.0,
+                        attack_ms: 5.0,
+                        release_ms: 80.0,
+                        makeup_gain: 4.0,
+                    },
+                },
+            ],
+            ai_enhanced: false,
+            category: "Modern".to_string(),
+            tags: vec!["synthwave".to_string(), "retrowave".to_string(), "80s".to_string()],
+            author: Some("Audio Engine Team".to_string()),
+            version: "1.0.0".to_string(),
+        }
+    }
+
+    /// 80s Pop style
+    pub fn preset_pop80s() -> StylePreset {
+        StylePreset {
+            id: "pop80s".to_string(),
+            name: "80s Pop".to_string(),
+            description: "Classic 80s pop production - bright, punchy, with gated reverb character".to_string(),
+            effects: vec![
+                // Bright EQ curve
+                EffectConfig::EQ {
+                    params: EQParams {
+                        low_gain: 2.0,
+                        mid_gain: 3.0,
+                        high_gain: 5.0,
+                        low_freq: 180.0,
+                        high_freq: 5000.0,
+                    },
+                },
+                // Wide stereo
+                EffectConfig::Stereo {
+                    params: StereoParams {
+                        width: 1.3,
+                        pan: 0.0,
+                    },
+                },
+                // Reverb with character
+                EffectConfig::Reverb {
+                    params: ReverbParams {
+                        room_size: 0.6,
+                        damping: 0.5,
+                        mix: 0.35,
+                        width: 0.8,
+                    },
+                },
+                // Heavy compression for that loud pop sound
+                EffectConfig::Compressor {
+                    params: CompressorParams {
+                        threshold: -12.0,
+                        ratio: 6.0,
+                        attack_ms: 3.0,
+                        release_ms: 100.0,
+                        makeup_gain: 5.0,
+                    },
+                },
+            ],
+            ai_enhanced: false,
+            category: "Retro".to_string(),
+            tags: vec!["80s".to_string(), "pop".to_string(), "bright".to_string()],
             author: Some("Audio Engine Team".to_string()),
             version: "1.0.0".to_string(),
         }

@@ -66,6 +66,27 @@ Available presets:
   - Gentle compression
   - Perfect for: Chill beats, study music
 
+- **🌊 Vaporwave Aesthetic**
+  - Slowed, reverb-heavy 80s aesthetic
+  - Enhanced bass and highs
+  - Extra-wide stereo image
+  - Large reverb for dreamy atmosphere
+  - Perfect for: A E S T H E T I C vibes, nostalgic tracks
+
+- **🌃 Synthwave**
+  - Retro 80s synthwave sound
+  - Punchy and energetic
+  - Enhanced bass presence
+  - Fast attack compression for impact
+  - Perfect for: Outrun style, retro action music
+
+- **💿 80s Pop**
+  - Classic 80s pop production
+  - Bright, punchy sound
+  - Gated reverb character
+  - Heavy compression for loud pop sound
+  - Perfect for: Pop music, upbeat tracks
+
 - **🔊 Clean & Transparent**
   - Minimal processing
   - Only brick-wall limiting for safety
@@ -117,7 +138,25 @@ Switch between them in real-time to compare!
    - Smooths out harsh digital sounds
    - Creates warm, vintage feeling
 
-5. **Clean**:
+5. **Vaporwave**:
+   - Best for dreamy, atmospheric tracks
+   - Enhances 80s-style synths and samples
+   - Creates spacious, nostalgic soundscapes
+   - Try on slowed-down music for extra effect
+
+6. **Synthwave**:
+   - Excellent for retro electronic music
+   - Adds punch and energy to synth tracks
+   - Great for action-oriented music
+   - Works well with driving basslines
+
+7. **80s Pop**:
+   - Perfect for bright, commercial-sounding mixes
+   - Makes vocals and leads more prominent
+   - Adds that classic "radio ready" sound
+   - Best for upbeat, energetic tracks
+
+8. **Clean**:
    - Use when you just want volume normalization
    - Good for comparing processing vs. no processing
    - Safe loudness for all tracks
