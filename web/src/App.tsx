@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import './App.css'
 import { useAudioEngine } from './hooks/useAudioEngine'
 import { Waveform } from './components/Waveform'
 import { AudioPlayer } from './components/AudioPlayer'
-import { exportWAV, formatDuration } from './utils/audioUtils'
+import { ParameterControls } from './components/ParameterControls'
+import { exportWAV, formatDuration, exportPresetJSON, importPresetJSON } from './utils/audioUtils'
+import { extractParametersFromPreset, updatePresetParameters } from './utils/presetUtils'
 
 function App() {
   const {
@@ -11,17 +13,24 @@ function App() {
     isProcessing,
     error,
     currentPreset,
+    currentPresetData,
     originalBuffer,
     processedBuffer,
     availablePresets,
     initialize,
     loadAudioFile,
     applyPreset,
+    applyCustomPreset,
     reset,
   } = useAudioEngine()
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [selectedPresetId, setSelectedPresetId] = useState<string>('')
+
+  // Extract parameters from current preset
+  const currentParameters = useMemo(() => {
+    return extractParametersFromPreset(currentPresetData)
+  }, [currentPresetData])
 
   // Initialize engine on mount
   useEffect(() => {
@@ -54,6 +63,40 @@ function App() {
   const handleReset = () => {
     reset()
     setSelectedPresetId('')
+  }
+
+  const handleParameterChange = async (parameterName: string, value: number) => {
+    if (!currentPresetData) return
+
+    // Update the preset data with new parameter value
+    const updatedPreset = updatePresetParameters(currentPresetData, parameterName, value)
+
+    // Apply the updated preset
+    const presetJson = JSON.stringify(updatedPreset)
+    await applyCustomPreset(presetJson)
+  }
+
+  const handleExportPreset = () => {
+    if (currentPresetData) {
+      const filename = `${currentPresetData.id || 'custom'}_preset.json`
+      exportPresetJSON(currentPresetData, filename)
+    }
+  }
+
+  const handleImportPreset = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    try {
+      const presetData = await importPresetJSON(file)
+      const presetJson = JSON.stringify(presetData)
+      await applyCustomPreset(presetJson)
+    } catch (err) {
+      console.error('Failed to import preset:', err)
+    }
+
+    // Reset input
+    event.target.value = ''
   }
 
   if (!isInitialized) {
@@ -214,6 +257,44 @@ function App() {
                   </>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* Parameter Controls */}
+          {currentPreset && currentParameters.length > 0 && (
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 mb-8 border border-white/20">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-2xl font-semibold">🎛️ Fine-Tune Parameters</h2>
+                  <p className="text-gray-300 text-sm mt-1">
+                    Adjust the effect parameters to customize the sound to your liking
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <label className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-semibold text-sm transition-all cursor-pointer">
+                    📥 Import
+                    <input
+                      type="file"
+                      accept=".json"
+                      onChange={handleImportPreset}
+                      className="hidden"
+                      disabled={isProcessing || !originalBuffer}
+                    />
+                  </label>
+                  <button
+                    onClick={handleExportPreset}
+                    disabled={isProcessing}
+                    className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2 rounded-lg font-semibold text-sm transition-all"
+                  >
+                    📤 Export
+                  </button>
+                </div>
+              </div>
+              <ParameterControls
+                parameters={currentParameters}
+                onParameterChange={handleParameterChange}
+                disabled={isProcessing}
+              />
             </div>
           )}
 

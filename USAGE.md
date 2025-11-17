@@ -99,7 +99,37 @@ Available presets:
 3. Wait for processing (usually < 1 second)
 4. Waveform on the right updates with processed audio
 
-### Step 5: A/B Comparison
+### Step 5: Fine-Tune Parameters (Phase 2 Feature!)
+
+After applying a preset, customize the sound to your liking:
+
+1. **Parameter Sliders**: A "🎛️ Fine-Tune Parameters" section appears below
+2. **Real-Time Adjustment**: Move any slider to instantly update the audio
+3. **Effect Controls**: Adjust EQ, reverb, compression, stereo width, and more
+4. **Live Preview**: Changes are processed and applied immediately
+
+**Available Parameters by Effect:**
+- **EQ**: Low/Mid/High frequency gain (-12dB to +12dB)
+- **Bitcrush**: Bit depth (1-16 bit), sample rate reduction, dry/wet mix
+- **Reverb**: Room size, damping, mix level
+- **Compression**: Threshold, ratio, attack/release times, makeup gain
+- **Stereo**: Width (0=mono, 2=extra wide), pan position
+- **Limiter**: Threshold, release time
+
+### Step 6: Save & Share Custom Presets (Phase 2 Feature!)
+
+**Export Your Custom Settings:**
+1. After adjusting parameters, click **"📤 Export"** in the Fine-Tune section
+2. A JSON file downloads with your custom preset
+3. Share this file with others or save for later!
+
+**Import Custom Presets:**
+1. Click **"📥 Import"** in the Fine-Tune section
+2. Select a preset JSON file
+3. The custom preset applies automatically
+4. All parameters are restored exactly as saved
+
+### Step 7: A/B Comparison
 
 Use the audio player's mode selector:
 - **🎼 Original**: Hear the unprocessed audio
@@ -107,7 +137,7 @@ Use the audio player's mode selector:
 
 Switch between them in real-time to compare!
 
-### Step 6: Export Your Result
+### Step 8: Export Your Result
 
 1. Click **"⬇️ Export WAV"** button
 2. File downloads automatically as `filename_stylename.wav`
@@ -170,12 +200,12 @@ Switch between them in real-time to compare!
 
 ## Keyboard Shortcuts
 
-(Coming in Phase 2)
+(Coming in Phase 3)
 
 - `Space`: Play/Pause
 - `R`: Reset to original
 - `E`: Export WAV
-- `1-5`: Quick select presets
+- `1-8`: Quick select presets
 
 ## Troubleshooting
 
@@ -207,15 +237,7 @@ Switch between them in real-time to compare!
 
 ## Advanced Usage
 
-### Custom Presets (Future)
-
-In Phase 2, you'll be able to:
-- Adjust individual effect parameters
-- Save custom preset configurations
-- Import/export presets as JSON
-- Share presets with others
-
-### Effect Parameters
+### Understanding Effect Parameters
 
 Each preset is a combination of effects:
 

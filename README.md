@@ -2,7 +2,7 @@
 
 A pure frontend, WebAssembly-based audio processing workstation that transforms music styles in your browser - no server needed!
 
-**Status:** ✅ Phase 1 MVP Complete - Fully functional!
+**Status:** ✅ Phase 2 Complete - Parameter controls & custom presets!
 
 ## ✨ Features
 
@@ -13,7 +13,13 @@ A pure frontend, WebAssembly-based audio processing workstation that transforms 
   - 🌸 Touhou-like (Early Windows electronic sound)
   - 🎹 FM Synthesis / PC-98 Style
   - 🎧 Lo-fi Hip Hop
+  - 🌊 Vaporwave Aesthetic
+  - 🌃 Synthwave
+  - 💿 80s Pop
   - 🔊 Clean & Transparent
+- **Real-Time Parameter Control**: Fine-tune any preset with interactive sliders
+- **Custom Preset Editor**: Adjust effect parameters to create your own unique sounds
+- **Preset Import/Export**: Share presets as JSON files
 - **AI-Ready**: Extensible AI interface for intelligent style suggestions
 - **Custom Styles**: Create and save your own filter presets
 - **High-Performance**: Rust + WASM powered audio engine
@@ -70,9 +76,12 @@ Open http://localhost:5173 in your browser.
 ## 🎨 Usage
 
 1. **Upload Audio**: Click to upload MP3, WAV, FLAC, or OGG files
-2. **Choose Style**: Select from built-in presets or create custom ones
-3. **Preview**: A/B compare original vs processed audio
-4. **Export**: Download as WAV or MP3
+2. **Choose Style**: Select from 8 built-in presets
+3. **Apply & Listen**: Hear the transformed audio immediately
+4. **Fine-Tune**: Adjust effect parameters with interactive sliders
+5. **Save Preset**: Export your custom settings as JSON
+6. **Preview**: A/B compare original vs processed audio
+7. **Export**: Download as high-quality WAV
 
 ## 🔧 Development
 
@@ -137,12 +146,12 @@ To integrate your AI model, implement the `AIStyleModel` trait in `ai/interface.
 - [x] Audio playback & A/B comparison
 - [x] WAV export (16-bit PCM)
 
-### Phase 2: Enhanced Features
-- [ ] Real-time parameter adjustment
-- [ ] More style presets (Synthwave, Vaporwave, etc.)
-- [ ] MP3 export
-- [ ] Custom preset editor
-- [ ] Preset import/export (JSON)
+### Phase 2: Enhanced Features ✅ COMPLETED
+- [x] Real-time parameter adjustment with interactive sliders
+- [x] More style presets (Synthwave, Vaporwave, 80s Pop)
+- [x] Custom preset editor with live preview
+- [x] Preset import/export (JSON)
+- [ ] MP3 export (pending)
 
 ### Phase 3: Advanced Features
 - [ ] Region-specific processing

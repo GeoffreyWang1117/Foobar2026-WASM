@@ -158,3 +158,36 @@ export function generateWaveformData(
 
   return waveformData
 }
+
+/**
+ * Export preset as JSON file
+ */
+export function exportPresetJSON(presetData: any, filename: string): void {
+  const json = JSON.stringify(presetData, null, 2)
+  const blob = new Blob([json], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+/**
+ * Import preset from JSON file
+ */
+export async function importPresetJSON(file: File): Promise<any> {
+  try {
+    const text = await file.text()
+    const presetData = JSON.parse(text)
+
+    // Basic validation
+    if (!presetData.id || !presetData.name || !presetData.effects) {
+      throw new Error('Invalid preset file format')
+    }
+
+    return presetData
+  } catch (error) {
+    throw new Error(`Failed to import preset: ${error}`)
+  }
+}
