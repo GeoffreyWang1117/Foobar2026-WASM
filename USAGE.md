@@ -438,6 +438,81 @@ Each preset is a combination of effects:
    - Width (mono to super-wide)
    - Pan (left-right balance)
 
+## 📱 Progressive Web App (PWA)
+
+The Music Style Filter can be installed as a standalone application on your device!
+
+### Installing as an App
+
+**Desktop Installation (Chrome/Edge):**
+1. Visit the app in your browser
+2. Look for the **📱 Install** banner at the bottom of the screen
+3. Click **"✨ Install"** button
+4. The app will be added to your desktop/start menu
+5. Launch it like any other application
+
+**Mobile Installation:**
+
+*Android (Chrome):*
+1. Open the app in Chrome
+2. Tap the install banner or use the menu **⋮** → **"Add to Home screen"**
+3. The app icon will appear on your home screen
+4. Tap to launch in fullscreen mode
+
+*iOS (Safari):*
+1. Open the app in Safari
+2. Tap the Share button (square with arrow)
+3. Scroll and tap **"Add to Home Screen"**
+4. The app will appear on your home screen
+5. Launch it for an app-like experience
+
+### PWA Features
+
+**Offline Support:**
+- Process audio files without internet connection
+- All audio processing happens locally
+- Access the app even when offline
+- Note: Initial WASM module requires internet for first load
+
+**Automatic Updates:**
+- New versions install automatically in the background
+- You'll see an **🆕 Update Available** notification
+- Click **"🔄 Update Now"** to reload with the latest version
+- No manual updates needed!
+
+**App-Like Experience:**
+- Runs in its own window (no browser tabs/UI)
+- Appears in your taskbar/dock like a native app
+- Fast startup with cached resources
+- Works seamlessly with file uploads
+
+**Storage & Caching:**
+- App assets are cached for instant loading
+- No repeated downloads
+- Check storage usage in browser settings if needed
+- Clear cache via browser settings if experiencing issues
+
+### Managing the PWA
+
+**Uninstalling:**
+- **Desktop**: Right-click app icon → Uninstall
+- **Android**: Long-press icon → Remove
+- **iOS**: Long-press icon → Remove App
+
+**Updating:**
+- Updates happen automatically
+- You'll be notified when a new version is available
+- Click update notification to apply changes
+- App continues working during update process
+
+### Benefits of Installing
+
+✅ **Faster**: Instant startup with cached assets
+✅ **Offline**: Work without internet connection
+✅ **Focused**: No browser distractions
+✅ **Convenient**: Launch from desktop/home screen
+✅ **Privacy**: All processing stays local on your device
+
 ## Privacy & Security
 
 ✅ **All processing happens in your browser**

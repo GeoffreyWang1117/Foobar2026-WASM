@@ -23,6 +23,7 @@ A pure frontend, WebAssembly-based audio processing workstation that transforms 
 - **Batch Processing**: Process multiple audio files at once with queue management
 - **Web Worker Processing**: Non-blocking audio processing for smooth UI experience
 - **Region Processing**: Select and process specific parts of your audio
+- **Progressive Web App**: Install as desktop/mobile app with offline support
 - **AI-Ready**: Extensible AI interface for intelligent style suggestions
 - **Custom Styles**: Create and save your own filter presets
 - **High-Performance**: Rust + WASM powered audio engine
@@ -85,6 +86,34 @@ Open http://localhost:5173 in your browser.
 5. **Save Preset**: Export your custom settings as JSON
 6. **Preview**: A/B compare original vs processed audio
 7. **Export**: Download as high-quality WAV
+
+## 📱 Progressive Web App (PWA)
+
+The Music Style Filter can be installed as a standalone app on your device:
+
+### Features
+- **Offline Support**: Process audio files without internet connection
+- **Install Prompt**: One-click installation on desktop and mobile
+- **App-like Experience**: Runs in standalone window without browser UI
+- **Automatic Updates**: Get notified when new versions are available
+- **Fast Loading**: Cached assets for instant startup
+
+### Installation
+
+**Desktop (Chrome/Edge):**
+1. Visit the app in your browser
+2. Look for the install banner or click the install button in the address bar
+3. Click "Install" to add to your desktop
+
+**Mobile (iOS/Android):**
+1. Open the app in Safari (iOS) or Chrome (Android)
+2. Tap the "Install" button in the banner, or use the "Add to Home Screen" option
+3. The app will appear on your home screen
+
+**Offline Usage:**
+- Once installed, the app works offline for audio processing
+- Note: Initial WASM module load requires internet connection
+- Processed files are saved locally on your device
 
 ## 🔧 Development
 
@@ -156,13 +185,13 @@ To integrate your AI model, implement the `AIStyleModel` trait in `ai/interface.
 - [x] Preset import/export (JSON)
 - [ ] MP3 export (pending)
 
-### Phase 3: Advanced Features (In Progress)
+### Phase 3: Advanced Features ✅ COMPLETED
 - [x] Batch processing with queue management
 - [x] Web Worker for non-blocking processing
 - [x] Performance mode toggle (Worker / Main Thread)
 - [x] Region-specific processing (audio selection)
-- [ ] AI-powered style suggestions
-- [ ] PWA support (offline mode)
+- [x] PWA support (offline mode, install prompt)
+- [ ] AI-powered style suggestions (planned for Phase 4)
 
 ## 🤝 Contributing
 

@@ -7,8 +7,11 @@ import { AudioPlayer } from './components/AudioPlayer'
 import { ParameterControls } from './components/ParameterControls'
 import { BatchProcessor, type BatchFile } from './components/BatchProcessor'
 import { RegionSelector, type AudioRegion } from './components/RegionSelector'
+import { InstallPrompt } from './components/InstallPrompt'
+import { UpdateNotification } from './components/UpdateNotification'
 import { exportWAV, formatDuration, exportPresetJSON, importPresetJSON, decodeAudioFile, extractRegion } from './utils/audioUtils'
 import { extractParametersFromPreset, updatePresetParameters } from './utils/presetUtils'
+import { registerServiceWorker } from './utils/pwa'
 
 type ProcessingMode = 'single' | 'batch'
 type EngineMode = 'main' | 'worker'
@@ -56,6 +59,17 @@ function App() {
   useEffect(() => {
     initialize()
   }, [initialize])
+
+  // Register Service Worker for PWA
+  useEffect(() => {
+    registerServiceWorker().then((registration) => {
+      if (registration) {
+        console.log('[PWA] Service Worker registered')
+      }
+    }).catch((error) => {
+      console.error('[PWA] Service Worker registration failed:', error)
+    })
+  }, [])
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -630,6 +644,10 @@ function App() {
           <p>Made with ♥ and 🦀 (Rust) | All processing done locally in your browser</p>
         </footer>
       </div>
+
+      {/* PWA Components */}
+      <InstallPrompt />
+      <UpdateNotification />
     </div>
   )
 }
