@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PWA Icon Generator</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+    h1 {
+      margin-top: 0;
+      font-size: 32px;
+    }
+    .preview {
+      display: flex;
+      gap: 30px;
+      margin: 30px 0;
+      justify-content: center;
+      align-items: center;
+    }
+    .preview-item {
+      text-align: center;
+    }
+    .preview-item canvas {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    }
+    button {
+      background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 10px 5px;
+      font-weight: 600;
+      transition: transform 0.2s;
+    }
+    button:hover {
+      transform: scale(1.05);
+    }
+    button:active {
+      transform: scale(0.95);
+    }
+    .instructions {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+      line-height: 1.6;
+    }
+    .success {
+      background: rgba(34, 197, 94, 0.2);
+      border: 2px solid #22c55e;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+      display: none;
+    }
+    .success.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎵 PWA Icon Generator</h1>
+    <p>Generate PNG icons for the Music Style Filter PWA</p>
+
+    <div class="preview">
+      <div class="preview-item">
+        <canvas id="canvas192" width="192" height="192"></canvas>
+        <p>192×192 px</p>
+      </div>
+      <div class="preview-item">
+        <canvas id="canvas512" width="512" height="512"></canvas>
+        <p>512×512 px</p>
+      </div>
+    </div>
+
+    <div style="text-align: center;">
+      <button onclick="generateIcons()">🎨 Generate Icons</button>
+      <button onclick="downloadIcon(192)">⬇️ Download 192px</button>
+      <button onclick="downloadIcon(512)">⬇️ Download 512px</button>
+      <button onclick="downloadBoth()">⬇️ Download Both</button>
+    </div>
+
+    <div id="success" class="success">
+      ✅ Icons generated successfully! Click download buttons to save them.
+    </div>
+
+    <div class="instructions">
+      <h3>📝 Instructions:</h3>
+      <ol>
+        <li>Click <strong>"Generate Icons"</strong> to create the PNG files</li>
+        <li>Click <strong>"Download Both"</strong> to save both icon files</li>
+        <li>Rename downloaded files to:
+          <ul>
+            <li><code>icon-192.png</code></li>
+            <li><code>icon-512.png</code></li>
+          </ul>
+        </li>
+        <li>Move the files to <code>web/public/</code> directory</li>
+        <li>Rebuild the app: <code>npm run build</code></li>
+      </ol>
+      <p><strong>Note:</strong> Icons will be automatically included in the PWA when you build the app.</p>
+    </div>
+  </div>
+
+  <script>
+    const svgSource = `<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a855f7;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:0.8" />
+      <stop offset="50%" style="stop-color:#a855f7;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#ec4899;stop-opacity:0.8" />
+    </linearGradient>
+  </defs>
+  <circle cx="256" cy="256" r="240" fill="url(#bgGradient)"/>
+  <g fill="url(#waveGradient)" opacity="0.9">
+    <rect x="80" y="220" width="24" height="72" rx="12"/>
+    <rect x="120" y="180" width="24" height="152" rx="12"/>
+    <rect x="160" y="140" width="24" height="232" rx="12"/>
+    <rect x="200" y="200" width="24" height="112" rx="12"/>
+    <rect x="240" y="160" width="24" height="192" rx="12"/>
+    <rect x="280" y="190" width="24" height="132" rx="12"/>
+    <rect x="320" y="150" width="24" height="212" rx="12"/>
+    <rect x="360" y="200" width="24" height="112" rx="12"/>
+    <rect x="400" y="230" width="24" height="52" rx="12"/>
+  </g>
+  <g fill="#ffffff" opacity="0.95">
+    <circle cx="140" cy="360" r="28"/>
+    <circle cx="200" cy="380" r="28"/>
+    <rect x="165" y="280" width="12" height="100" rx="6"/>
+    <rect x="225" y="300" width="12" height="100" rx="6"/>
+    <path d="M 165 280 Q 165 260, 240 270 L 240 300 Q 240 285, 177 280 Z"/>
+  </g>
+  <g fill="#ffffff" opacity="0.7">
+    <circle cx="380" cy="120" r="6"/>
+    <circle cx="420" cy="160" r="4"/>
+    <circle cx="100" cy="140" r="5"/>
+    <circle cx="440" cy="280" r="4"/>
+  </g>
+</svg>`;
+
+    function drawSVGToCanvas(canvas, svgSource) {
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+
+      return new Promise((resolve, reject) => {
+        img.onload = () => {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve();
+        };
+        img.onerror = reject;
+        img.src = 'data:image/svg+xml;base64,' + btoa(svgSource);
+      });
+    }
+
+    async function generateIcons() {
+      const canvas192 = document.getElementById('canvas192');
+      const canvas512 = document.getElementById('canvas512');
+
+      try {
+        await drawSVGToCanvas(canvas192, svgSource);
+        await drawSVGToCanvas(canvas512, svgSource);
+
+        document.getElementById('success').classList.add('show');
+        console.log('Icons generated successfully!');
+      } catch (error) {
+        console.error('Error generating icons:', error);
+        alert('Error generating icons. Please try again.');
+      }
+    }
+
+    function downloadIcon(size) {
+      const canvas = document.getElementById(`canvas${size}`);
+      canvas.toBlob((blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `music-style-filter-icon-${size}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 'image/png');
+    }
+
+    function downloadBoth() {
+      setTimeout(() => downloadIcon(192), 0);
+      setTimeout(() => downloadIcon(512), 500);
+    }
+
+    // Auto-generate on load
+    window.onload = () => {
+      generateIcons();
+    };
+  </script>
+</body>
+</html>

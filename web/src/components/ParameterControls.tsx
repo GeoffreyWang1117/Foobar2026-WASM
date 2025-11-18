@@ -2,8 +2,6 @@
  * Parameter controls component for real-time effect adjustment
  */
 
-import { useState, useEffect } from 'react'
-
 export interface EffectParameter {
   name: string
   value: number
@@ -25,21 +23,6 @@ export function ParameterControls({
   onParameterChange,
   disabled = false,
 }: ParameterControlsProps) {
-  const [localParams, setLocalParams] = useState<Record<string, number>>({})
-
-  useEffect(() => {
-    const initial: Record<string, number> = {}
-    parameters.forEach(p => {
-      initial[p.name] = p.value
-    })
-    setLocalParams(initial)
-  }, [parameters])
-
-  const handleChange = (name: string, value: number) => {
-    setLocalParams(prev => ({ ...prev, [name]: value }))
-    onParameterChange(name, value)
-  }
-
   if (parameters.length === 0) {
     return (
       <div className="text-center text-gray-400 py-8">
@@ -57,7 +40,7 @@ export function ParameterControls({
               {formatParameterName(param.name)}
             </label>
             <span className="text-sm text-purple-300 font-mono">
-              {localParams[param.name]?.toFixed(2) || param.value.toFixed(2)}
+              {param.value.toFixed(2)}
               {param.unit && ` ${param.unit}`}
             </span>
           </div>
@@ -67,8 +50,8 @@ export function ParameterControls({
             min={param.min}
             max={param.max}
             step={param.step}
-            value={localParams[param.name] || param.value}
-            onChange={(e) => handleChange(param.name, parseFloat(e.target.value))}
+            value={param.value}
+            onChange={(e) => onParameterChange(param.name, parseFloat(e.target.value))}
             disabled={disabled}
             className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer slider"
           />

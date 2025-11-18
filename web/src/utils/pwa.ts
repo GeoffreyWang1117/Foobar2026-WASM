@@ -7,6 +7,10 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
 }
 
+interface NavigatorStandalone extends Navigator {
+  standalone?: boolean
+}
+
 let deferredPrompt: BeforeInstallPromptEvent | null = null
 
 /**
@@ -112,7 +116,7 @@ export function isAppInstalled(): boolean {
   }
 
   // Check iOS standalone mode
-  if ((window.navigator as any).standalone === true) {
+  if ((window.navigator as NavigatorStandalone).standalone === true) {
     return true
   }
 

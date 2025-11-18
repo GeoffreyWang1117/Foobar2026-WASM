@@ -2,7 +2,7 @@
  * Audio player component with A/B comparison
  */
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { formatDuration } from '../utils/audioUtils'
 
 interface AudioPlayerProps {
@@ -37,14 +37,25 @@ export function AudioPlayer({ originalBuffer, processedBuffer }: AudioPlayerProp
     }
   }, [originalBuffer, processedBuffer, playbackMode])
 
+  const stop = useCallback(() => {
+    if (sourceNodeRef.current) {
+      sourceNodeRef.current.stop()
+      sourceNodeRef.current = null
+    }
+
+    pauseTimeRef.current = 0
+    setCurrentTime(0)
+    setIsPlaying(false)
+  }, [])
+
   // Stop playback when component unmounts or buffer changes
   useEffect(() => {
     return () => {
       stop()
     }
-  }, [originalBuffer, processedBuffer, playbackMode])
+  }, [stop, originalBuffer, processedBuffer, playbackMode])
 
-  const play = () => {
+  const play = useCallback(() => {
     const buffer = playbackMode === 'original' ? originalBuffer : processedBuffer
     if (!buffer || !audioContextRef.current) return
 
@@ -94,9 +105,9 @@ export function AudioPlayer({ originalBuffer, processedBuffer }: AudioPlayerProp
 
     setIsPlaying(true)
     requestAnimationFrame(updateTime)
-  }
+  }, [playbackMode, originalBuffer, processedBuffer, duration, isPlaying])
 
-  const pause = () => {
+  const pause = useCallback(() => {
     if (sourceNodeRef.current) {
       sourceNodeRef.current.stop()
       sourceNodeRef.current = null
@@ -107,20 +118,9 @@ export function AudioPlayer({ originalBuffer, processedBuffer }: AudioPlayerProp
     }
 
     setIsPlaying(false)
-  }
+  }, [])
 
-  const stop = () => {
-    if (sourceNodeRef.current) {
-      sourceNodeRef.current.stop()
-      sourceNodeRef.current = null
-    }
-
-    pauseTimeRef.current = 0
-    setCurrentTime(0)
-    setIsPlaying(false)
-  }
-
-  const seek = (time: number) => {
+  const seek = useCallback((time: number) => {
     const wasPlaying = isPlaying
     stop()
     pauseTimeRef.current = time
@@ -128,31 +128,31 @@ export function AudioPlayer({ originalBuffer, processedBuffer }: AudioPlayerProp
     if (wasPlaying) {
       play()
     }
-  }
+  }, [isPlaying, stop, play])
 
-  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleProgressClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect()
     const x = e.clientX - rect.left
     const percentage = x / rect.width
     seek(percentage * duration)
-  }
+  }, [duration, seek])
 
-  const togglePlayPause = () => {
+  const togglePlayPause = useCallback(() => {
     if (isPlaying) {
       pause()
     } else {
       play()
     }
-  }
+  }, [isPlaying, pause, play])
 
-  const switchMode = (mode: 'original' | 'processed') => {
+  const switchMode = useCallback((mode: 'original' | 'processed') => {
     const wasPlaying = isPlaying
     stop()
     setPlaybackMode(mode)
     if (wasPlaying) {
       setTimeout(play, 100)
     }
-  }
+  }, [isPlaying, stop, play])
 
   const hasAudio = originalBuffer !== null
   const hasProcessed = processedBuffer !== null
