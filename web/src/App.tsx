@@ -9,7 +9,8 @@ import { BatchProcessor, type BatchFile } from './components/BatchProcessor'
 import { RegionSelector, type AudioRegion } from './components/RegionSelector'
 import { InstallPrompt } from './components/InstallPrompt'
 import { UpdateNotification } from './components/UpdateNotification'
-import { exportWAV, formatDuration, exportPresetJSON, importPresetJSON, decodeAudioFile, extractRegion } from './utils/audioUtils'
+import { ExportSettings } from './components/ExportSettings'
+import { exportWAV, exportAudio, formatDuration, exportPresetJSON, importPresetJSON, decodeAudioFile, extractRegion, type ExportFormat, type MP3Bitrate } from './utils/audioUtils'
 import { extractParametersFromPreset, updatePresetParameters } from './utils/presetUtils'
 import { registerServiceWorker } from './utils/pwa'
 
@@ -49,6 +50,8 @@ function App() {
   const [showSettings, setShowSettings] = useState(false)
   const [selectedRegion, setSelectedRegion] = useState<AudioRegion | null>(null)
   const [regionMode, setRegionMode] = useState(false)
+  const [exportFormat, setExportFormat] = useState<ExportFormat>('mp3')
+  const [exportBitrate, setExportBitrate] = useState<MP3Bitrate>(192)
 
   // Extract parameters from current preset
   const currentParameters = useMemo(() => {
@@ -86,11 +89,14 @@ function App() {
     }
   }
 
-  const handleExportWAV = () => {
+  const handleExport = () => {
     if (processedBuffer) {
       const baseName = selectedFile?.name.replace(/\.[^/.]+$/, '') || 'audio'
-      const filename = `${baseName}_${currentPreset}.wav`
-      exportWAV(processedBuffer, filename)
+      const filename = `${baseName}_${currentPreset}`
+      exportAudio(processedBuffer, filename, {
+        format: exportFormat,
+        bitrate: exportBitrate,
+      })
     }
   }
 
@@ -217,11 +223,14 @@ function App() {
     completedFiles.forEach(batchFile => {
       if (batchFile.processedBuffer) {
         const baseName = batchFile.file.name.replace(/\.[^/.]+$/, '')
-        const filename = `${baseName}_processed.wav`
-        exportWAV(batchFile.processedBuffer, filename)
+        const filename = `${baseName}_processed`
+        exportAudio(batchFile.processedBuffer, filename, {
+          format: exportFormat,
+          bitrate: exportBitrate,
+        })
       }
     })
-  }, [batchFiles])
+  }, [batchFiles, exportFormat, exportBitrate])
 
   // Region processing functions
   const handleApplyRegionPreset = useCallback(async () => {
@@ -553,11 +562,11 @@ function App() {
                       🔄 Reset
                     </button>
                     <button
-                      onClick={handleExportWAV}
+                      onClick={handleExport}
                       disabled={isProcessing || !processedBuffer}
                       className="bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed px-8 py-3 rounded-lg font-semibold text-lg transition-all"
                     >
-                      ⬇️ Export WAV
+                      ⬇️ Export {exportFormat.toUpperCase()}
                     </button>
                   </>
                 )}
@@ -603,6 +612,17 @@ function App() {
             </div>
           )}
 
+          {/* Export Settings */}
+          {processedBuffer && (
+            <ExportSettings
+              format={exportFormat}
+              bitrate={exportBitrate}
+              onFormatChange={setExportFormat}
+              onBitrateChange={setExportBitrate}
+              disabled={isProcessing}
+            />
+          )}
+
               {/* Info Section */}
               {!originalBuffer && (
                 <div className="bg-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/10">
@@ -626,7 +646,7 @@ function App() {
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="text-green-400">✓</span>
-                      <span><strong>Export:</strong> Download your transformed audio as high-quality WAV</span>
+                      <span><strong>Export:</strong> Download as WAV (lossless) or MP3 (compressed)</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="text-green-400">✓</span>

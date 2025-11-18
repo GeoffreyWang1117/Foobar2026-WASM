@@ -184,12 +184,36 @@ Use the audio player's mode selector:
 
 Switch between them in real-time to compare!
 
-### Step 8: Export Your Result
+### Step 8: Configure Export Settings ⭐ NEW!
 
-1. Click **"⬇️ Export WAV"** button
-2. File downloads automatically as `filename_stylename.wav`
-3. High-quality 16-bit PCM WAV format
-4. Ready to use in any audio software
+After processing, you'll see the **⚙️ Export Settings** panel with format options:
+
+**Format Selection:**
+- **🎵 WAV**: Lossless, high-quality (16-bit PCM)
+  - Best for: Professional use, editing, archival
+  - File size: ~10MB per minute
+  - No quality loss
+
+- **🎧 MP3**: Compressed, smaller files
+  - Best for: Sharing, streaming, mobile devices
+  - File size: 1-3MB per minute (depending on bitrate)
+  - Good to excellent quality
+
+**MP3 Bitrate Options** (when MP3 is selected):
+- **128 kbps**: Good quality, smallest file (~1MB/min) 💾
+- **192 kbps**: High quality, balanced size (~1.5MB/min) ✨ *Recommended*
+- **256 kbps**: Very high quality, larger file (~2MB/min) 🌟
+- **320 kbps**: Maximum quality, largest file (~2.5MB/min) 💎
+
+The panel shows estimated file sizes and format details to help you choose.
+
+### Step 9: Export Your Result
+
+1. Select your preferred format (WAV or MP3)
+2. If MP3, choose your desired bitrate
+3. Click **"⬇️ Export {FORMAT}"** button (button text shows selected format)
+4. File downloads automatically as `filename_stylename.{wav|mp3}`
+5. Ready to use in any audio software or share online!
 
 ---
 
@@ -221,10 +245,13 @@ Switch between them in real-time to compare!
 
 ### Step 4: Export All Processed Files
 
-1. After processing completes, click **"⬇️ Export All (N)"**
-2. All completed files will download automatically
-3. Files are named: `original_filename_processed.wav`
-4. High-quality 16-bit PCM WAV format
+1. Configure export settings (WAV or MP3) using the **⚙️ Export Settings** panel
+   - Same format options as single file mode
+   - Your chosen format applies to ALL exported files
+2. After processing completes, click **"⬇️ Export All (N)"**
+3. All completed files will download automatically in the selected format
+4. Files are named: `original_filename_processed.{wav|mp3}`
+5. All files use the same quality settings you configured
 
 ### Step 5: Queue Management
 

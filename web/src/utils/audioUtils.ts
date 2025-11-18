@@ -1,6 +1,16 @@
 /**
- * Audio utilities for file decoding, format conversion, and WAV export
+ * Audio utilities for file decoding, format conversion, and audio export
  */
+
+import lamejs from '@breezystack/lamejs'
+
+export type ExportFormat = 'wav' | 'mp3'
+export type MP3Bitrate = 128 | 192 | 256 | 320
+
+export interface ExportOptions {
+  format: ExportFormat
+  bitrate?: MP3Bitrate  // For MP3 export
+}
 
 /**
  * Decode an audio file to AudioBuffer using Web Audio API
@@ -121,6 +131,101 @@ export function exportWAV(audioBuffer: AudioBuffer, filename: string): void {
 function writeString(view: DataView, offset: number, string: string): void {
   for (let i = 0; i < string.length; i++) {
     view.setUint8(offset + i, string.charCodeAt(i))
+  }
+}
+
+/**
+ * Export AudioBuffer as MP3 file
+ */
+export function exportMP3(
+  audioBuffer: AudioBuffer,
+  filename: string,
+  bitrate: MP3Bitrate = 192
+): void {
+  const numberOfChannels = Math.min(audioBuffer.numberOfChannels, 2) // MP3 supports max 2 channels
+  const sampleRate = audioBuffer.sampleRate
+  const length = audioBuffer.length
+
+  // Create MP3 encoder
+  const mp3encoder = new lamejs.Mp3Encoder(numberOfChannels, sampleRate, bitrate)
+  const mp3Data: Uint8Array[] = []
+
+  // Prepare samples
+  const sampleBlockSize = 1152 // LAME encoding block size
+
+  // Convert float samples to int16
+  const left = new Int16Array(length)
+  const right = numberOfChannels > 1 ? new Int16Array(length) : null
+
+  const leftChannel = audioBuffer.getChannelData(0)
+  const rightChannel = numberOfChannels > 1 ? audioBuffer.getChannelData(1) : null
+
+  for (let i = 0; i < length; i++) {
+    left[i] = Math.max(-1, Math.min(1, leftChannel[i])) * 0x7FFF
+    if (right && rightChannel) {
+      right[i] = Math.max(-1, Math.min(1, rightChannel[i])) * 0x7FFF
+    }
+  }
+
+  // Encode in chunks
+  for (let i = 0; i < length; i += sampleBlockSize) {
+    const leftChunk = left.subarray(i, i + sampleBlockSize)
+    const rightChunk = right ? right.subarray(i, i + sampleBlockSize) : null
+
+    let mp3buf
+    if (numberOfChannels === 2 && rightChunk) {
+      mp3buf = mp3encoder.encodeBuffer(leftChunk, rightChunk) as Uint8Array
+    } else {
+      mp3buf = mp3encoder.encodeBuffer(leftChunk) as Uint8Array
+    }
+
+    if (mp3buf && mp3buf.length > 0) {
+      mp3Data.push(mp3buf)
+    }
+  }
+
+  // Flush remaining data
+  const mp3buf = mp3encoder.flush() as Uint8Array
+  if (mp3buf && mp3buf.length > 0) {
+    mp3Data.push(mp3buf)
+  }
+
+  // Combine all MP3 data
+  const totalLength = mp3Data.reduce((acc, arr) => acc + arr.length, 0)
+  const combinedData = new Uint8Array(totalLength)
+  let offset = 0
+  for (const arr of mp3Data) {
+    combinedData.set(arr, offset)
+    offset += arr.length
+  }
+
+  // Create and download blob
+  const blob = new Blob([combinedData], { type: 'audio/mp3' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+/**
+ * Export AudioBuffer with specified format and options
+ */
+export function exportAudio(
+  audioBuffer: AudioBuffer,
+  filename: string,
+  options: ExportOptions = { format: 'wav' }
+): void {
+  const { format, bitrate = 192 } = options
+
+  // Remove existing extension and add correct one
+  const baseFilename = filename.replace(/\.[^/.]+$/, '')
+
+  if (format === 'mp3') {
+    exportMP3(audioBuffer, `${baseFilename}.mp3`, bitrate)
+  } else {
+    exportWAV(audioBuffer, `${baseFilename}.wav`)
   }
 }
 
